@@ -174,6 +174,12 @@ class Explorer():
         with open("filestypes.json", 'r', encoding='utf-8') as f:
             self.files_types =  json.load(f)  # Retourne une liste de dictionnaires
 
+    def get_templates_list(self):
+        return os.listdir("templates")
+
+    def create_template(self, name, template_name):pass
+
+
     # FILES ACTION ============================================================
 
     # Error prevention -------------------------------------------------------

@@ -1,8 +1,8 @@
 from log import *
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget,QLabel,QScrollArea,QHBoxLayout,QFrame,QSizePolicy,QGridLayout,QComboBox
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget,QLabel,QScrollArea,QHBoxLayout,QFrame,QSizePolicy,QGridLayout,QComboBox,QMenu
 from PySide6.QtCore import Signal, QTimer,Qt
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication,QActionGroup, QAction
 from explorer import *
 from theme import *
 import traceback
@@ -274,8 +274,16 @@ class FileExplorerApp(QMainWindow):
         self.button_new_file.clicked.connect(self.whenButtoNewFileClicked)
 
 
-        self.combo_type_new = QComboBox()
+        self.combo_type_new = QPushButton("File ▼")#QComboBox()
+
+        self.menu_files_type = QMenu()
+        self.action_group_file_type = QActionGroup( self.menu_files_type)
+        self.action_group_file_type.setExclusive(True)
+
         self.generateFilesTypeToComboList()
+        self.combo_type_new.clicked.connect(self.show_menu)
+        
+
 
 
 
@@ -342,8 +350,8 @@ class FileExplorerApp(QMainWindow):
        
         self.files_container_layout =QVBoxLayout()
         self.files_container_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.files_container_layout.setSpacing(0)  # Espace entre les éléments
-        self.files_container_layout.setContentsMargins(0, 0, 0, 0)  # Marges internes du layout
+        self.files_container_layout.setSpacing(0)  #Not work
+        self.files_container_layout.setContentsMargins(0, 0, 0, 0)    #Not work
         self.files_container.setLayout(self.files_container_layout)
 
         self.scroll_area.setWidget(self.files_container)
@@ -392,15 +400,53 @@ class FileExplorerApp(QMainWindow):
         self.main_layout.addWidget(self.frame_info)  
 
     def generateFilesTypeToComboList(self):
-        pass
-        old_selected = self.combo_type_new.currentData()
-        self.combo_type_new.clear()
-        self.combo_type_new.addItem("File",userData = "file")
-        self.combo_type_new.addItem("Folder",userData = "folder")
+        
+
+        old_selected = self.getSelectedAction()
+        old_selected = old_selected.data() if self.getSelectedAction() else None
+
+       #Clear Menu
+        for action in self.action_group_file_type.actions():
+            self.menu_files_type.removeAction(action)     
+            self.action_group_file_type.removeAction(action)    
+            action.deleteLater()           
+
+       
+        action = self.addFileTypeChoiceOnMenu("File", self.menu_files_type, data="file")
+        action.setChecked(True)
+        self.addFileTypeChoiceOnMenu("Folder", self.menu_files_type, data="file")
+        #self.combo_type_new.setMenu(self.menu_files_type)
+        
         self.loadFilesTypeToComboList(old_selected)
 
-    def loadFilesTypeToComboList(self,old_selected=None):
+        menu =  self.menu_files_type.addMenu("Templates")
 
+        for template in self.explorer.get_templates_list():
+            self.addFileTypeChoiceOnMenu(template, menu, "template")
+
+    def addFileTypeChoiceOnMenu(self, texte, menu, data):
+        action = QAction(texte, menu)
+        action.setCheckable(True)
+
+        action.setData(data)
+        menu.addAction(action)
+        self.action_group_file_type.addAction(action)
+
+        # Connexion du signal triggered à la méthode de gestion
+        action.triggered.connect(lambda checked, a=action: self.whenFileTypeActionSelected(a))
+
+        return action
+
+    
+    def getSelectedAction(self):
+        try:
+            for action in self.action_group_file_type.actions():
+                if action.isChecked():
+                    return action
+        except: return None
+
+    def loadFilesTypeToComboList(self,old_selected=None):
+        #print("loadFilesTypeToComboList")
         #Sort by most used
         sorted_types = sorted(
             self.explorer.files_types,
@@ -410,15 +456,22 @@ class FileExplorerApp(QMainWindow):
     
         # Add to combo list
         for index, ftype in enumerate(sorted_types):
-            self.combo_type_new.addItem(
-                f"{ftype['type'].upper()} - {ftype['description']}",
-                userData=self.explorer.files_types.index(ftype)#Not Optized
-            )
-        #Restore old selection
-        if old_selected is not None:
-            index = self.combo_type_new.findData(old_selected)
-            if index != -1:
-                self.combo_type_new.setCurrentIndex(index)
+            # self.combo_type_new.addItem(
+            #     f"{ftype['type'].upper()} - {ftype['description']}",
+            #     userData=self.explorer.files_types.index(ftype)#Not Optized
+            # )
+            action = self.addFileTypeChoiceOnMenu(texte=f"{ftype['type'].upper()} - {ftype['description']}",
+                                        menu=self.menu_files_type,
+                                          data=self.explorer.files_types.index(ftype))#Not Optized
+            if old_selected==action.data():
+                action.setChecked(True)
+        # #Restore old 
+        # print(old_selected)
+        # if old_selected :
+        #     index = self.action_group_file_type.actions().index(old_selected)
+        #     print(index)
+        #     if index != -1:
+        #         self.action_group_file_type.actions()[index].setChecked(True)
 
     ###KEY EVENT ==========================================================================================
 
@@ -480,11 +533,12 @@ class FileExplorerApp(QMainWindow):
 
     ##Tool Bar ----------------------------
     def whenButtoNewFolderClicked(self):
-        self.combo_type_new.setCurrentIndex(1) #Select Folder Type
+        self.action_group_file_type.actions()[1].setChecked(True)
+        self.whenFileTypeActionSelected(self.action_group_file_type.actions()[1])#Optimise
         self.createItem()
 
     def whenButtoNewFileClicked(self):
-        if self.combo_type_new.currentIndex == 1:self.combo_type_new.setCurrentIndex(0) #Select File Type
+#        if self.combo_type_new.currentIndex == 1:self.combo_type_new.setCurrentIndex(0) #Select File Type
         self.createItem()
 
     def whenButtonCopyClicked(self):
@@ -498,6 +552,10 @@ class FileExplorerApp(QMainWindow):
     
     def whenButtonDeleteClicked(self):
         self.deleteSelected()
+
+
+    def whenFileTypeActionSelected(self, action):
+        self.combo_type_new.setText(action.text() + " ▼")
 
     #Files ItemObject
     def whenObjectItemWidgetClicked(self, widget):
@@ -538,6 +596,9 @@ class FileExplorerApp(QMainWindow):
     def whenFilesFrameClicked(self):
        self.unselectAll()
 
+    def show_menu(self):
+        
+        self.menu_files_type.exec(self.combo_type_new.mapToGlobal(self.combo_type_new.rect().bottomLeft()))
     #Favorits Object
 
     # def whenFavItemWidgetClicked(self, widget):
@@ -587,15 +648,19 @@ class FileExplorerApp(QMainWindow):
                 return
         
            
-            if  self.combo_type_new.currentData() == "folder":
+            #if  self.combo_type_new.currentData() == "folder":
+            if self.getSelectedAction().data() == "folder":
                 self.explorer.createFolder(name)
+
+            elif self.getSelectedAction().data() == "template":
+                self.explorer.createTemplate(name,self.getSelectedAction().text())
             
             else:
                 extension = ""
-                if self.combo_type_new.currentData()!="file":
-                    extension =  "." + self.explorer.getFileTypeWithIndex(self.combo_type_new.currentData()).lower()
+                if self.getSelectedAction().data()!="file":
+                    extension =  "." + self.explorer.getFileTypeWithIndex(self.getSelectedAction().data()).lower()
 
-                    self.explorer.addUsingToFileType(self.combo_type_new.currentData())
+                    self.explorer.addUsingToFileType(self.getSelectedAction().data())
                     self.generateFilesTypeToComboList()
                 else:#File type custom seted so create it
                     custom_ext_chosen = name.split(".")
@@ -615,6 +680,7 @@ class FileExplorerApp(QMainWindow):
             self.raiseMessage("Item succesfully created : "+name)
         except Exception as e:
             self.raiseError(e)
+            traceback.print_exc()
           
     def copySelected(self):
         if len(self.explorer.getSelectedItems()) == 0:

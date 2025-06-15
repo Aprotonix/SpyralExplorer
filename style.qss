@@ -56,20 +56,23 @@
 
 /* Button ------------------------------------------------ */
 
-#tool_widget QPushButton {
+#tool_widget QPushButton{
     background-color: #3c3c3c;
     border: 1px solid #555;
     padding: 7px;
     border-radius: 15px;
-    color:#FFF;
+    color: #FFF;
 }
 
-#tool_widget QPushButton:hover {
+
+#tool_widget  QPushButton:hover {
     background-color: #656565;
     border: 1px solid #555;
     padding: 7px;
     border-radius: 15px;
 }
+
+
 /* Input ------------------------------------------------ */
 #tool_widget QLineEdit {
     background-color: #3c3c3c;
