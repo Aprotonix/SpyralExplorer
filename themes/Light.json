@@ -1,0 +1,40 @@
+{
+    "name": "Default",
+
+    "windowBG":"#FFF",
+    "textColor":"#000",
+
+    "msgError":"#FF0000",
+    "msgSuccess":"#00FF37",
+    "msgInfo":"#00D9FF",
+
+    "topWidgetButtonBG": "#FFF",
+    "topWidgetButtonBorder": "#BBB",
+    "topWidgetButtonHoverBG": "#AAA",
+    "topWidgetButtonHoverBorder": "#999",
+
+    "topWidgetInputBG": "#FFF",
+    "topWidgetInputBorder": "#BBB",
+    "topWidgetInputHoverBG": "#AAA",
+    "topWidgetInputHoverBorder": "#999",
+
+    "toolWidgetButtonBG": "#FFF",
+    "toolWidgetButtonBorder": "#BBB",
+    "toolWidgetButtonHoverBG": "#AAA",
+    "toolWidgetButtonHoverBorder": "#999",
+
+    "toolWidgetInputBG": "#FFF",
+    "toolWidgetInputBorder": "#BBB",
+    "toolWidgetInputHoverBG": "#AAA",
+    "toolWidgetInputHoverBorder": "#999",
+
+    "ObjItemWidgetBG": "#FFF",
+    "ObjItemWidgetBorder": "#BBB",
+    "ObjItemWidgetHoverBG": "#AAA",
+    "ObjItemWidgetHoverBorder": "#999",
+
+    "ObjItemWidgetSelectedBG": "#007aa8",
+    "ObjItemWidgetSelectedBorder": "#3ec2ff",
+    "ObjItemWidgetSelectedHoverBG": "#0093ca",
+    "ObjItemWidgetSelectedHoverBorder": "#3ec2ff"
+}

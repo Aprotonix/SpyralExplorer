@@ -1,0 +1,39 @@
+{
+    "name": "Default",
+
+    "windowBG":"#000000",
+
+    "msgError":"#FF0000",
+    "msgSuccess":"#00FF37",
+    "msgInfo":"#00D9FF",
+
+    "topWidgetButtonBG": "#000000",
+    "topWidgetButtonBorder": "#555",
+    "topWidgetButtonHoverBG": "#222222",
+    "topWidgetButtonHoverBorder": "#555",
+
+    "topWidgetInputBG": "#000000",
+    "topWidgetInputBorder": "#555",
+    "topWidgetInputHoverBG": "#222222",
+    "topWidgetInputHoverBorder": "#555",
+
+    "toolWidgetButtonBG": "#000000",
+    "toolWidgetButtonBorder": "#555",
+    "toolWidgetButtonHoverBG": "#222222",
+    "toolWidgetButtonHoverBorder": "#555",
+
+    "toolWidgetInputBG": "#000000",
+    "toolWidgetInputBorder": "#555",
+    "toolWidgetInputHoverBG": "#222222",
+    "toolWidgetInputHoverBorder": "#555",
+
+    "ObjItemWidgetBG": "#000000",
+    "ObjItemWidgetBorder": "#555",
+    "ObjItemWidgetHoverBG": "#222222",
+    "ObjItemWidgetHoverBorder": "#555",
+
+    "ObjItemWidgetSelectedBG": "#007aa8",
+    "ObjItemWidgetSelectedBorder": "#3ec2ff",
+    "ObjItemWidgetSelectedHoverBG": "#0093ca",
+    "ObjItemWidgetSelectedHoverBorder": "#3ec2ff"
+}

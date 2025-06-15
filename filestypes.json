@@ -1,0 +1,27 @@
+[
+    {
+        "type": "txt",
+        "description": "Simple text file",
+        "using": 1
+    },
+    {
+        "type": "py",
+        "description": "Python Script",
+        "using": 0
+    },
+    {
+        "type": "java",
+        "description": "Java Script",
+        "using": 0
+    },
+    {
+        "type": "odp",
+        "description": "Libre Office Texte",
+        "using": 0
+    },
+    {
+        "type": "o",
+        "description": "",
+        "using": 2
+    }
+]
