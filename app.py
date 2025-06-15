@@ -116,8 +116,8 @@ class NormalObjectItemWidget(ObjectItemWidget):
         self.label_name.setObjectName("object_item_label")
         
 
-        frame_layout = QHBoxLayout()
-        frame_layout.addWidget(self.label_name)
+        self.frame_layout = QHBoxLayout()
+        self.frame_layout.addWidget(self.label_name)
 
        
         self.label_type = QLabel(object.type)
@@ -128,10 +128,10 @@ class NormalObjectItemWidget(ObjectItemWidget):
 
     
         
-        frame_layout.addWidget(self.label_type)
-        frame_layout.addWidget(self.label_size)
+        self.frame_layout.addWidget(self.label_type)
+        self.frame_layout.addWidget(self.label_size)
 
-        self.frame.setLayout(frame_layout)
+        self.frame.setLayout(self.frame_layout)
 
         main_layout = QHBoxLayout()
         main_layout.addWidget(self.frame)
@@ -178,7 +178,6 @@ class FavoriteObjectItemWidget(ObjectItemWidget):
 
     
 
-
 class ClickableFrame(QFrame):
     clicked = Signal()
 
@@ -187,8 +186,6 @@ class ClickableFrame(QFrame):
         if self.childAt(event.position().toPoint()) is None:
             self.clicked.emit()
         super().mousePressEvent(event)
-
-
 
 
 class FileExplorerApp(QMainWindow):
@@ -798,6 +795,7 @@ class FileExplorerApp(QMainWindow):
 
                 self.list_wiget_object_item.append(widget)
                 self.files_container_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignTop)
+
 
 
             self.scroll_area.setWidget(self.files_container)

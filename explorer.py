@@ -34,7 +34,7 @@ class DiskObject(Object):
 
 class Explorer():
     def __init__(self):
-        self.current_path = "D:\\Teste"#Path where whe are
+        self.current_path = "C:\\"#Path where whe are
         self.path_content = []  #Object in the path
         self.files_types = []
         self.paths_copied = []
