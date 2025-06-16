@@ -177,8 +177,14 @@ class Explorer():
     def get_templates_list(self):
         return os.listdir("templates")
 
-    def create_template(self, name, template_name):pass
-
+    def create_template(self, name, selected_template_name):
+        self.last_created_items_path.clear()
+        destination_path = self.current_path
+        template_name = self.renameIfExist(os.path.join(destination_path, name), destination_path)#WARN :if cut and paste in the same folder it will still rename it : file_name(1).ext
+        dest = os.path.join(destination_path, template_name)
+        
+        shutil.copytree(os.path.join("templates", selected_template_name) , dest, dirs_exist_ok=True)  # Pour dossiers                         
+        self.last_created_items_path.append(dest)
 
     # FILES ACTION ============================================================
 

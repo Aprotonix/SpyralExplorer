@@ -6,6 +6,7 @@ from PySide6.QtGui import QGuiApplication,QActionGroup, QAction
 from explorer import *
 from theme import *
 import traceback
+import sound
 
 # =========== INFO ==========
 #    App Made by Aprotonix
@@ -193,6 +194,7 @@ class FileExplorerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(APP_NAME)
+        
         self.resize(800, 600)
         self.explorer = Explorer()
 
@@ -212,6 +214,8 @@ class FileExplorerApp(QMainWindow):
         self.generateFavorits()
         self.explorer.actualisePathContent()
         self.showPathContent()
+
+        
         
 
     def generateInterface(self):
@@ -219,6 +223,7 @@ class FileExplorerApp(QMainWindow):
         #Widgets
         self.navigation_widget = QFrame()
         self.navigation_widget.setObjectName("top_widget")
+
         
         self.button_go_back =  QPushButton("↑")
         self.button_go_back.clicked.connect(self.whenButtonGoBackCliked)
@@ -246,6 +251,7 @@ class FileExplorerApp(QMainWindow):
         ##Tool Bar---------------------------------------------------------
         self.toolbar_fram = QFrame()
         self.toolbar_fram.setObjectName("tool_widget")
+        
 
         self.button_cut = QPushButton("Copy")
         self.button_cut.clicked.connect(self.whenButtonCopyClicked)
@@ -270,11 +276,11 @@ class FileExplorerApp(QMainWindow):
         self.input_new_item.returnPressed.connect(self.createItem)
         
        
-        self.button_new_file = QPushButton("Create File")
+        self.button_new_file = QPushButton("Create")
         self.button_new_file.clicked.connect(self.whenButtoNewFileClicked)
 
 
-        self.combo_type_new = QPushButton("File ▼")#QComboBox()
+        self.combo_type_new = QPushButton("File  ▼")#QComboBox()
 
         self.menu_files_type = QMenu()
         self.action_group_file_type = QActionGroup( self.menu_files_type)
@@ -387,6 +393,12 @@ class FileExplorerApp(QMainWindow):
 
         central_widget = QFrame()
         central_widget.setObjectName("window")
+        #self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowOpacity(0.95)
+
+
+
+
         self.setCentralWidget(central_widget)  
 
         self.message_label = QLabel("")
@@ -399,6 +411,7 @@ class FileExplorerApp(QMainWindow):
         self.main_layout.addWidget(self.frame_explorer)
         self.main_layout.addWidget(self.frame_info)  
 
+    # Combo list------------
     def generateFilesTypeToComboList(self):
         
 
@@ -415,14 +428,16 @@ class FileExplorerApp(QMainWindow):
         action = self.addFileTypeChoiceOnMenu("File", self.menu_files_type, data="file")
         action.setChecked(True)
         self.addFileTypeChoiceOnMenu("Folder", self.menu_files_type, data="file")
-        #self.combo_type_new.setMenu(self.menu_files_type)
+        #self.combo_type_new.setMenu(self.menu_files_type) #Better but weird view
+        menu =  self.menu_files_type.addMenu("Templates")
+        for template in self.explorer.get_templates_list():
+            self.addFileTypeChoiceOnMenu(template, menu, "template")
         
         self.loadFilesTypeToComboList(old_selected)
 
-        menu =  self.menu_files_type.addMenu("Templates")
+        
 
-        for template in self.explorer.get_templates_list():
-            self.addFileTypeChoiceOnMenu(template, menu, "template")
+        
 
     def addFileTypeChoiceOnMenu(self, texte, menu, data):
         action = QAction(texte, menu)
@@ -437,7 +452,6 @@ class FileExplorerApp(QMainWindow):
 
         return action
 
-    
     def getSelectedAction(self):
         try:
             for action in self.action_group_file_type.actions():
@@ -555,7 +569,7 @@ class FileExplorerApp(QMainWindow):
 
 
     def whenFileTypeActionSelected(self, action):
-        self.combo_type_new.setText(action.text() + " ▼")
+        self.combo_type_new.setText(action.text() + "  ▼")
 
     #Files ItemObject
     def whenObjectItemWidgetClicked(self, widget):
@@ -653,7 +667,7 @@ class FileExplorerApp(QMainWindow):
                 self.explorer.createFolder(name)
 
             elif self.getSelectedAction().data() == "template":
-                self.explorer.createTemplate(name,self.getSelectedAction().text())
+                self.explorer.create_template(name,self.getSelectedAction().text())
             
             else:
                 extension = ""
@@ -796,11 +810,12 @@ class FileExplorerApp(QMainWindow):
             self.raiseError(e)
 
     def raiseError(self, message):
-            self.message_label.setStyleSheet(f"color: {self.theme.current_theme['msgError']};")
-            self.message_label.setText(str(message))
-            if self.message_timer.isActive():
-                self.message_timer.stop()
-            self.message_timer.start(3000)
+        sound.play_error_sound()
+        self.message_label.setStyleSheet(f"color: {self.theme.current_theme['msgError']};")
+        self.message_label.setText(str(message))
+        if self.message_timer.isActive():
+            self.message_timer.stop()
+        self.message_timer.start(3000)
 
     def raiseMessage(self, message, color =None, time = 3000):
             if not color: color = f"{self.theme.current_theme['msgSuccess']}"

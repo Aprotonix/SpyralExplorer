@@ -52,6 +52,7 @@
 
 #tool_widget {
     background-color: @windowBG;
+    
 }
 
 /* Button ------------------------------------------------ */
