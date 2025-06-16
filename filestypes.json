@@ -23,5 +23,15 @@
         "type": "o",
         "description": "",
         "using": 6
+    },
+    {
+        "type": "",
+        "description": "",
+        "using": 2
+    },
+    {
+        "type": "s",
+        "description": "",
+        "using": 1
     }
 ]

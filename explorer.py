@@ -8,6 +8,13 @@ import psutil# Get list of drive
 import platform #Get OS Name
 import ctypes# Get drive name for windows
 
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_PATH = os.path.join(BASE_PATH,"templates")
+FAV_LIST_PATH = os.path.join(BASE_PATH,"fav_list.txt")
+FILES_TYPES_PATH = os.path.join(BASE_PATH,"filestypes.json")
+ICONS_PATH = os.path.join(BASE_PATH,"icons")
+
+
 class Object:
     def __init__(self,path,type):
 
@@ -42,7 +49,7 @@ class Explorer():
         self.os = platform.system()
 
 
-
+        #self.base_path = os.path.dirname(os.path.abspath(__file__))
 
         self.last_created_items_path = []
 
@@ -155,7 +162,7 @@ class Explorer():
 
         else:#Not optimized
             for index, ftype in enumerate(self.files_types):
-                print(ftype)
+                #print(ftype)
                 if ftype["type"] == index_type:
                     self.files_types[index]["using"]+=1
                     return #Break the loop
@@ -164,18 +171,18 @@ class Explorer():
             self.save_file_types_json()
 
     def save_file_types_json(self):
-        with open("filestypes.json", 'w', encoding='utf-8') as f:
+        with open(FILES_TYPES_PATH, 'w', encoding='utf-8') as f:
                 json.dump(self.files_types, f, indent=4)
 
     def getFileTypeWithIndex(self, index_type):
         return  self.files_types[index_type]["type"]
           
     def load_file_types_json(self):
-        with open("filestypes.json", 'r', encoding='utf-8') as f:
+        with open(FILES_TYPES_PATH, 'r', encoding='utf-8') as f:
             self.files_types =  json.load(f)  # Retourne une liste de dictionnaires
 
     def get_templates_list(self):
-        return os.listdir("templates")
+        return os.listdir(TEMPLATES_PATH)
 
     def create_template(self, name, selected_template_name):
         self.last_created_items_path.clear()
@@ -183,7 +190,7 @@ class Explorer():
         template_name = self.renameIfExist(os.path.join(destination_path, name), destination_path)#WARN :if cut and paste in the same folder it will still rename it : file_name(1).ext
         dest = os.path.join(destination_path, template_name)
         
-        shutil.copytree(os.path.join("templates", selected_template_name) , dest, dirs_exist_ok=True)  # Pour dossiers                         
+        shutil.copytree(os.path.join(TEMPLATES_PATH, selected_template_name) , dest, dirs_exist_ok=True)  # Pour dossiers                         
         self.last_created_items_path.append(dest)
 
     # FILES ACTION ============================================================
@@ -342,7 +349,7 @@ class Explorer():
 
     def getFavObjectList(self):
         list = []
-        with open("fav_list.txt", "r") as f:
+        with open(FAV_LIST_PATH, "r") as f:
             fav_list = f.read()
 
         fav_list = eval(fav_list)
@@ -355,7 +362,9 @@ class Explorer():
 
         return list
 
-
+#==========================
+    def getIconPath(self, icon_name):
+        return os.path.join(BASE_PATH, ICONS_PATH, icon_name + ".svg")
 
 
         

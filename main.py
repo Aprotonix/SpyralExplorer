@@ -1,3 +1,7 @@
+from log import log
+from time import monotonic
+log("Loading program...")
+start = monotonic()
 from PySide6.QtWidgets import QApplication
 
 from app import FileExplorerApp
@@ -17,5 +21,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = FileExplorerApp()
     #apply_stylesheet(window)
+    log(f"Loading finisehd in {round(monotonic()- start, 2)}s")
+    log("Starting window...")
     window.show()
     sys.exit(app.exec())

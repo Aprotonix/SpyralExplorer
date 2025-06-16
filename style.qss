@@ -17,7 +17,7 @@
     background-color: #3c3c3c;
     border: 1px solid #555;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: 13px;
     padding: 7px 14px;
 
     font-family: "Calibri";
@@ -28,14 +28,14 @@
 #top_widget QPushButton:hover {
     background-color: #656565;
     border: 1px solid #555;
-    border-radius: 15px;
+    border-radius: 13px;
 }
 /* Input ------------------------------------------------ */
 #top_widget QLineEdit {
     background-color: #3c3c3c;
     border: 1px solid #555;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: 13px;
 
     font-family: "Calibri";
     font-size: 15px;
@@ -61,7 +61,7 @@
     background-color: #3c3c3c;
     border: 1px solid #555;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: 13px;
     color: #FFF;
 }
 
@@ -70,7 +70,7 @@
     background-color: #656565;
     border: 1px solid #555;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: 13px;
 }
 
 
@@ -79,7 +79,7 @@
     background-color: #3c3c3c;
     border: 1px solid #555;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: 13px;
 
     font-family: "Calibri";
     font-size: 15px;

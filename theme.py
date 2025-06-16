@@ -1,18 +1,25 @@
 import os
 import json
+from log import log
 
-THEMES_PATH = "themes"
+THEMES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "themes")
 
 class Theme():
     def __init__(self):
         self.template_theme = {}
         self.current_theme = {}
         self.initDefaultTheme()
+
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
         
 
     def initDefaultTheme(self):
         self.template_theme = {
-              "windowBG":"#3c3c3c",
+            
+
+            "windowBG":"#232323",
+            "textColor":"#FFF",
+            "globalBorderRadius":"15px",
 
             "msgError":"#FF0000",
             "msgSuccess":"#00FF37",
@@ -20,27 +27,27 @@ class Theme():
 
             "topWidgetButtonBG": "#3c3c3c",
             "topWidgetButtonBorder": "#555",
-            "topWidgetButtonHoverBG": "#444444",
+            "topWidgetButtonHoverBG": "#656565",
             "topWidgetButtonHoverBorder": "#555",
 
             "topWidgetInputBG": "#3c3c3c",
             "topWidgetInputBorder": "#555",
-            "topWidgetInputHoverBG": "#444444",
+            "topWidgetInputHoverBG": "#656565",
             "topWidgetInputHoverBorder": "#555",
 
             "toolWidgetButtonBG": "#3c3c3c",
-            "toolButtonBorder": "#555",
-            "toolButtonHoverBG": "#444444",
-            "toolButtonHoverBorder": "#555",
+            "toolWidgetButtonBorder": "#555",
+            "toolWidgetButtonHoverBG": "#656565",
+            "toolWidgetButtonHoverBorder": "#555",
 
-            "toolInputBG": "#3c3c3c",
-            "toolInputBorder": "#555",
-            "toolInputHoverBG": "#444444",
-            "toolInputHoverBorder": "#555",
+            "toolWidgetInputBG": "#3c3c3c",
+            "toolWidgetInputBorder": "#555",
+            "toolWidgetInputHoverBG": "#656565",
+            "toolWidgetInputHoverBorder": "#555",
 
             "ObjItemWidgetBG": "#3c3c3c",
             "ObjItemWidgetBorder": "#555",
-            "ObjItemWidgetHoverBG": "#444444",
+            "ObjItemWidgetHoverBG": "#656565",
             "ObjItemWidgetHoverBorder": "#555",
 
             "ObjItemWidgetSelectedBG": "#007aa8",
@@ -49,15 +56,16 @@ class Theme():
             "ObjItemWidgetSelectedHoverBorder": "#3ec2ff"
         }
 
+
     def applyThemeToStyle(self):
-        with open("style_template.qss", "r")  as f:
+        with open(os.path.join( self.base_path,"style_template.qss"), "r")  as f:
             style_text = f.read()
   
         for key, value in self.current_theme.items():
             style_text = style_text.replace("@" + key, value)
 
 
-        with open("style.qss", "w")  as f:
+        with open(os.path.join( self.base_path,"style.qss"), "w")  as f:
             f.write(style_text)
 
     def getThemesListName(self):
@@ -78,7 +86,7 @@ class Theme():
             for key, value in  json.load(f).items():
                 self.current_theme[key] = value
 
-        print(self.current_theme["name"])
+        log("Current Theme set : "+self.current_theme["name"])
 
 
        

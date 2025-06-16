@@ -1,8 +1,9 @@
 from log import *
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton, QListWidget,QLabel,QScrollArea,QHBoxLayout,QFrame,QSizePolicy,QGridLayout,QComboBox,QMenu
+
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton,QLabel,QScrollArea,QHBoxLayout,QFrame,QMenu
 from PySide6.QtCore import Signal, QTimer,Qt
-from PySide6.QtGui import QGuiApplication,QActionGroup, QAction
+from PySide6.QtGui import QGuiApplication,QActionGroup, QAction, QIcon
 from explorer import *
 from theme import *
 import traceback
@@ -20,6 +21,8 @@ import sound
 
 
 APP_NAME = "Spyral Files Explorator 0.5 (alpha)"
+
+
 
 def formatSize(size):
         size_mode = 1024
@@ -43,7 +46,7 @@ def apply_stylesheet(widget, path="style.qss"):
             #widget.setStyleSheet("#frame {background: " + widget.theme.current_theme["windowBG"]+";}")
             widget.setStyleSheet(f.read())
     except Exception as e:
-        print(f"Erreur lors du chargement du style : {e}")
+        log(f"Erreur lors du chargement du style : {e}", "E")
 
 
 
@@ -207,6 +210,9 @@ class FileExplorerApp(QMainWindow):
         self.message_timer.setSingleShot(True)
         self.message_timer.timeout.connect(self.clearMessage)
         
+        self.show_icon = True
+        self.show_button_text = False
+
         self.multi_selecting_enabled = False
         self.range_selecting_enabled = False
 
@@ -253,21 +259,33 @@ class FileExplorerApp(QMainWindow):
         self.toolbar_fram.setObjectName("tool_widget")
         
 
-        self.button_cut = QPushButton("Copy")
-        self.button_cut.clicked.connect(self.whenButtonCopyClicked)
+        self.button_copy = QPushButton()
+        self.button_copy.clicked.connect(self.whenButtonCopyClicked)
+        if self.show_icon:self.button_copy.setIcon(self.getIcon("copy"))
+        if self.show_button_text:self.button_copy.setText("Copy")
 
-        self.button_copy = QPushButton("Cut")
-        self.button_copy.clicked.connect(self.whenButtonCutClicked)
+        self.button_cut = QPushButton()
+        self.button_cut.clicked.connect(self.whenButtonCutClicked)
+        if self.show_icon:self.button_cut.setIcon(self.getIcon("cut"))
+        if self.show_button_text:self.button_cut.setText("Cut")
 
 
-        self.button_paste = QPushButton("Paste")
+        self.button_paste = QPushButton()
         self.button_paste.clicked.connect(self.whenButtonPasteClicked)
+        if self.show_icon:self.button_paste.setIcon(self.getIcon("paste"))
+        if self.show_button_text:self.button_paste.setText("Paste")
 
-        self.button_delete = QPushButton("Delete")
+        self.button_delete = QPushButton()
         self.button_delete.clicked.connect(self.whenButtonDeleteClicked)
+        if self.show_icon:self.button_delete.setIcon(self.getIcon("delete"))
+        if self.show_button_text:self.button_delete.setText("delete")
 
-        self.button_new_folder = QPushButton("Create Folder")
+        self.label_separator = QLabel(" | ")#Optimize
+      
+        self.button_new_folder = QPushButton()
         self.button_new_folder.clicked.connect(self.whenButtoNewFolderClicked)
+        if self.show_icon:self.button_new_folder.setIcon(self.getIcon("new_folder"))
+        if self.show_button_text:self.button_new_folder.setText("New Folder")
 
         self.label_new_item_type = QLabel("New item type")
 
@@ -276,8 +294,10 @@ class FileExplorerApp(QMainWindow):
         self.input_new_item.returnPressed.connect(self.createItem)
         
        
-        self.button_new_file = QPushButton("Create")
+        self.button_new_file = QPushButton()
         self.button_new_file.clicked.connect(self.whenButtoNewFileClicked)
+        if self.show_icon:self.button_new_file.setIcon(self.getIcon("add"))
+        if self.show_button_text:self.button_new_file.setText("Create")
 
 
         self.combo_type_new = QPushButton("File  ▼")#QComboBox()
@@ -299,6 +319,9 @@ class FileExplorerApp(QMainWindow):
         self.toolbar_layout.addWidget(self.button_cut)  
         self.toolbar_layout.addWidget(self.button_paste)  
         self.toolbar_layout.addWidget(self.button_delete)  
+
+        self.toolbar_layout.addWidget(self.label_separator)
+
         self.toolbar_layout.addWidget(self.button_new_folder)        
         self.toolbar_layout.addWidget(self.input_new_item)
         self.toolbar_layout.addWidget(self.label_new_item_type)
@@ -394,6 +417,7 @@ class FileExplorerApp(QMainWindow):
         central_widget = QFrame()
         central_widget.setObjectName("window")
         #self.setWindowFlags(Qt.FramelessWindowHint)
+    
         self.setWindowOpacity(0.95)
 
 
@@ -487,6 +511,10 @@ class FileExplorerApp(QMainWindow):
         #     if index != -1:
         #         self.action_group_file_type.actions()[index].setChecked(True)
 
+
+    def getIcon(self, icon_name):
+        
+        return QIcon(self.explorer.getIconPath(icon_name))
     ###KEY EVENT ==========================================================================================
 
 
@@ -495,7 +523,7 @@ class FileExplorerApp(QMainWindow):
         modifiers = event.modifiers()
         key = event.key()
 
-        print(key, Qt.Key.Key_Shift)
+        #print(key, Qt.Key.Key_Shift)
       
         if modifiers == Qt.KeyboardModifier.ControlModifier and key == Qt.Key.Key_Control:
             self.enableMultiSelecting()
@@ -758,7 +786,7 @@ class FileExplorerApp(QMainWindow):
         self.refreshInfo()
     
     def rangeSelect(self):
-        print("RangeSelect")
+        #print("RangeSelect")
         selected_object = self.getSelectedObject()
  
         
@@ -771,10 +799,10 @@ class FileExplorerApp(QMainWindow):
                 min_index = index
             if ob.object.selected and (max_index  ==-1  or index > max_index):
                 max_index = index
-        print(min_index, max_index)
+        #print(min_index, max_index)
         for index, ob in enumerate(self.list_wiget_object_item):
             if index >= min_index and  index <= max_index:
-                print("Minux",index, min_index)
+                #print("Minux",index, min_index)
                 ob.select()
    
     def enableMultiSelecting(self):
@@ -810,6 +838,7 @@ class FileExplorerApp(QMainWindow):
             self.raiseError(e)
 
     def raiseError(self, message):
+        log(message, "E")# Good ideo ? or place for specific situation
         sound.play_error_sound()
         self.message_label.setStyleSheet(f"color: {self.theme.current_theme['msgError']};")
         self.message_label.setText(str(message))

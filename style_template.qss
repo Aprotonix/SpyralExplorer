@@ -17,7 +17,7 @@
     background-color: @topWidgetButtonBG;
     border: 1px solid @topWidgetButtonBorder;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: @globalBorderRadius;
     padding: 7px 14px;
 
     font-family: "Calibri";
@@ -28,14 +28,14 @@
 #top_widget QPushButton:hover {
     background-color: @topWidgetButtonHoverBG;
     border: 1px solid @topWidgetButtonHoverBorder;
-    border-radius: 15px;
+    border-radius: @globalBorderRadius;
 }
 /* Input ------------------------------------------------ */
 #top_widget QLineEdit {
     background-color: @topWidgetInputBG;
     border: 1px solid @topWidgetInputBorder;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: @globalBorderRadius;
 
     font-family: "Calibri";
     font-size: 15px;
@@ -61,7 +61,7 @@
     background-color: @toolWidgetButtonBG;
     border: 1px solid @toolWidgetButtonBorder;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: @globalBorderRadius;
     color: @textColor;
 }
 
@@ -70,7 +70,7 @@
     background-color: @toolWidgetButtonHoverBG;
     border: 1px solid @toolWidgetButtonHoverBorder;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: @globalBorderRadius;
 }
 
 
@@ -79,7 +79,7 @@
     background-color: @toolWidgetInputBG;
     border: 1px solid @toolWidgetInputBorder;
     padding: 7px;
-    border-radius: 15px;
+    border-radius: @globalBorderRadius;
 
     font-family: "Calibri";
     font-size: 15px;

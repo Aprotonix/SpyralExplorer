@@ -3,6 +3,7 @@
 
     "windowBG":"#232323",
     "textColor":"#FFF",
+    "globalBorderRadius":"13px",
 
     "msgError":"#FF0000",
     "msgSuccess":"#00FF37",
