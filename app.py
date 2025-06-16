@@ -1,9 +1,9 @@
 from log import *
 
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton,QLabel,QScrollArea,QHBoxLayout,QFrame,QMenu
-from PySide6.QtCore import Signal, QTimer,Qt
-from PySide6.QtGui import QGuiApplication,QActionGroup, QAction, QIcon
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton,QLabel,QScrollArea,QHBoxLayout,QFrame,QMenu,QProgressBar,QFileIconProvider
+from PySide6.QtCore import Signal, QTimer,Qt,QFileInfo
+from PySide6.QtGui import QGuiApplication,QActionGroup, QAction, QIcon,QPixmap
 from explorer import *
 from theme import *
 import traceback
@@ -82,6 +82,7 @@ class ObjectItemWidget(QWidget):
         main_layout.addWidget(self.frame)
         self.setLayout(main_layout)
 
+
     def select(self):
         self.frame.setObjectName(self.fram_name_selected)
         self.object.selected = True
@@ -109,30 +110,50 @@ class NormalObjectItemWidget(ObjectItemWidget):
         super().__init__()
         
 
-    def generateView(self, object):
+    def generateView(self, object, show_icon):
 
-        self.setFixedHeight(50) 
+        self.setFixedHeight(50) #Forced, Need a solution
 
         self.frame.setObjectName(self.fram_name )
+        self.frame_layout = QHBoxLayout()
+        
         
         self.object = object
-        self.label_name = QLabel(object.name)
-        self.label_name.setObjectName("object_item_label")
+        
+        if show_icon:
+
+            self.label_icon = QLabel()
+            icon_provider = QFileIconProvider()
+            icon = icon_provider.icon(QFileInfo(object.path))
+
+            pixmap = icon.pixmap(15, 15)
+            self.label_icon.setPixmap(pixmap)
+            self.frame_layout.addWidget(self.label_icon)
+        else:
+            if object.type == "DIR":
+
+                self.label_type = QLabel("📁")
+            else:
+
+                 self.label_type = QLabel("📄")
+            self.label_type.setObjectName("object_item_label")
+            
+            self.frame_layout.addWidget(self.label_type)
         
 
-        self.frame_layout = QHBoxLayout()
+        self.label_name = QLabel(object.name)
+        
+        self.label_name.setObjectName("object_item_label")
         self.frame_layout.addWidget(self.label_name)
 
        
-        self.label_type = QLabel(object.type)
-        self.label_type.setObjectName("object_item_label")
         self.label_size = QLabel("--")
         self.label_size.setObjectName("object_item_label")
         if object.type != "DIR": self.label_size.setText(formatSize(object.size))
 
     
         
-        self.frame_layout.addWidget(self.label_type)
+        
         self.frame_layout.addWidget(self.label_size)
 
         self.frame.setLayout(self.frame_layout)
@@ -154,7 +175,7 @@ class FavoriteObjectItemWidget(ObjectItemWidget):
 
         
         self.setFixedHeight(55)
-        self.setFixedWidth(200)
+        self.setFixedWidth(220)
 
         self.frame.setObjectName(self.fram_name)
 
@@ -167,12 +188,6 @@ class FavoriteObjectItemWidget(ObjectItemWidget):
 
         frame_layout.addWidget(self.label_name)
 
-        if object.type == "DISK":
-            self.label_size = QLabel(formatSize(object.usage.total))
-            self.label_size.setAlignment(Qt.AlignmentFlag.AlignRight)
-            frame_layout.addWidget(self.label_size)
-            
-
        
         self.frame.setLayout(frame_layout)
 
@@ -180,7 +195,77 @@ class FavoriteObjectItemWidget(ObjectItemWidget):
         main_layout.addWidget(self.frame)
         self.setLayout(main_layout)
 
+#The code of this class is ugly
+class FavoriteDriveItemWidget(ObjectItemWidget):
     
+
+    def __init__(self):
+
+        super().__init__()
+        self.fram_name = "item_favorite_widget"
+        self.fram_name_selected = "item_favorite_widget_selected"
+
+    def generateView(self, object):
+
+        
+        self.setFixedHeight(90)
+        self.setFixedWidth(220)
+        self.frame.setObjectName(self.fram_name)
+        self.frame_title = QFrame()
+        
+
+        self.object = object
+        
+        
+
+        frame_layout = QVBoxLayout()
+
+        fram_title_layout = QHBoxLayout()
+        
+
+        self.label_name = QLabel(object.name)
+        self.label_name.setObjectName("object_item_label")
+        
+        self.label_size = QLabel(formatSize(object.usage.total))
+        self.label_size.setAlignment(Qt.AlignmentFlag.AlignRight)
+
+        fram_title_layout.addWidget(self.label_name)
+        fram_title_layout.addWidget(self.label_size)
+        
+        self.progress = QProgressBar()
+        
+        self.progress.setValue(self.object.usage.percent)
+        self.progress.setFixedWidth(180)
+        self.progress.setFixedHeight(10)
+        self.progress.setTextVisible(False)
+        self.progress.setStyleSheet("""
+            QProgressBar {
+                border: none;
+                border-radius: 100px;
+                padding: 0px;
+                
+                
+               
+            }
+            QProgressBar::chunk {
+                background-color: #3daee9;
+                border-radius: 100px;
+            }
+        """)
+
+       
+        
+        self.frame_title.setLayout(fram_title_layout)
+
+        frame_layout.addWidget(self.frame_title)
+        frame_layout.addWidget(self.progress)
+        self.frame.setLayout(frame_layout)
+
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(self.frame)
+        
+        self.setLayout(main_layout)
+ 
 
 class ClickableFrame(QFrame):
     clicked = Signal()
@@ -212,6 +297,7 @@ class FileExplorerApp(QMainWindow):
         
         self.show_icon = True
         self.show_button_text = False
+        self.show_file_icon = False#Heavy
 
         self.multi_selecting_enabled = False
         self.range_selecting_enabled = False
@@ -220,9 +306,6 @@ class FileExplorerApp(QMainWindow):
         self.generateFavorits()
         self.explorer.actualisePathContent()
         self.showPathContent()
-
-        
-        
 
     def generateInterface(self):
         ##Navigation Bar---------------------------------
@@ -459,10 +542,6 @@ class FileExplorerApp(QMainWindow):
         
         self.loadFilesTypeToComboList(old_selected)
 
-        
-
-        
-
     def addFileTypeChoiceOnMenu(self, texte, menu, data):
         action = QAction(texte, menu)
         action.setCheckable(True)
@@ -517,8 +596,6 @@ class FileExplorerApp(QMainWindow):
         return QIcon(self.explorer.getIconPath(icon_name))
     ###KEY EVENT ==========================================================================================
 
-
-
     def keyPressEvent(self, event):
         modifiers = event.modifiers()
         key = event.key()
@@ -555,7 +632,6 @@ class FileExplorerApp(QMainWindow):
 
 
         super().keyReleaseEvent(event)
-
 
 
     ###BUTTON EVENT   =====================================================================================
@@ -895,22 +971,38 @@ class FileExplorerApp(QMainWindow):
             self.refreshInfo()
             self.clearWidgetList(self.list_wiget_object_item)
             self.input_path.setText(self.explorer.current_path)
-            for  ob in self.explorer.getPathContent():
 
-                widget = NormalObjectItemWidget()
-                widget.generateView(ob)
-                widget.clicked.connect(lambda w=widget: self.whenObjectItemWidgetClicked(w))
-                widget.right_clicked.connect(lambda w=widget: self.whenObjectItemWidgetRightClicked(w))
-                if ob.selected:widget.select()
+            self.file_list = self.explorer.getPathContent()
+            self.current_index = 0
 
-                self.list_wiget_object_item.append(widget)
-                self.files_container_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignTop)
-
-
-
+            self._loadNextFile()
             self.scroll_area.setWidget(self.files_container)
+
         except Exception as e:
             self.raiseError(e)
+
+    def _loadNextFile(self):
+        if self.current_index >= len(self.file_list):
+            
+            return
+
+        ob = self.file_list[self.current_index]
+        self.current_index += 1
+        #Object Generation ----------------------------------------------------------
+        widget = NormalObjectItemWidget()
+        widget.generateView(ob,  self.show_file_icon)
+        widget.clicked.connect(lambda w=widget: self.whenObjectItemWidgetClicked(w))
+        widget.right_clicked.connect(lambda w=widget: self.whenObjectItemWidgetRightClicked(w))
+        if ob.selected:
+            widget.select()
+
+        self.list_wiget_object_item.append(widget)
+        self.files_container_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignTop)
+        #-----------------------------------------------------------------
+
+
+        # Attendre 1 ms avant d’ajouter le suivant (laisse l’UI respirer)
+        QTimer.singleShot(0, self._loadNextFile)
 
     def generateFavorits(self):
         try:
@@ -926,8 +1018,8 @@ class FileExplorerApp(QMainWindow):
             except Exception as e:
                 log(f"Error during loading drive list : {e}", "E")
             for  ob in fav_objects:
-
-                widget = FavoriteObjectItemWidget()
+                if ob.type == "DISK":widget = FavoriteDriveItemWidget()
+                else:widget = FavoriteObjectItemWidget()
                 widget.generateView(ob)
                 #widget.clicked.connect(lambda w=widget: self.whenFavItemWidgetClicked(w))
                 widget.right_clicked.connect(lambda w=widget: self.whenFavItemWidgetRightClicked(w))
@@ -946,3 +1038,24 @@ class FileExplorerApp(QMainWindow):
 
 
         
+# def showPathContent(self):
+#         try:
+#             self.refreshInfo()
+#             self.clearWidgetList(self.list_wiget_object_item)
+#             self.input_path.setText(self.explorer.current_path)
+#             for  ob in self.explorer.getPathContent():
+
+#                 widget = NormalObjectItemWidget()
+#                 widget.generateView(ob, self.explorer.getObjectIcon(ob))
+#                 widget.clicked.connect(lambda w=widget: self.whenObjectItemWidgetClicked(w))
+#                 widget.right_clicked.connect(lambda w=widget: self.whenObjectItemWidgetRightClicked(w))
+#                 if ob.selected:widget.select()
+
+#                 self.list_wiget_object_item.append(widget)
+#                 self.files_container_layout.addWidget(widget, alignment=Qt.AlignmentFlag.AlignTop)
+
+
+
+#             self.scroll_area.setWidget(self.files_container)
+#         except Exception as e:
+#             self.raiseError(e)

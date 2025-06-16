@@ -13,6 +13,7 @@ TEMPLATES_PATH = os.path.join(BASE_PATH,"templates")
 FAV_LIST_PATH = os.path.join(BASE_PATH,"fav_list.txt")
 FILES_TYPES_PATH = os.path.join(BASE_PATH,"filestypes.json")
 ICONS_PATH = os.path.join(BASE_PATH,"icons")
+CACHE_PATH = os.path.join(BASE_PATH,"cache")
 
 
 class Object:
@@ -24,10 +25,9 @@ class Object:
         if self.name == "":self.name = path
         self.selected = False
 
-  
-
-
-        if type != "DIR":self.size =  os.path.getsize(path)
+        if type != "DIR":
+            self.size =  os.path.getsize(path)
+            self.ext = os.path.splitext(self.name)[1][1:].lower()
 
     def __str__(self):
         return f"TYPE : {self.type}\nPATH : {self.path}"
@@ -56,6 +56,8 @@ class Explorer():
         self.cutModeEnabled = False
         self.load_file_types_json()
 
+        self.order_method = self.orderPathContentByType
+
     def getObject(self, path):
 
         return Object(path, self.getPathType(path))
@@ -72,6 +74,8 @@ class Explorer():
                   
                     self.path_content[-1].selected = True
 
+            self.order_method()
+
         except Exception as e:
             raise e
 
@@ -82,6 +86,17 @@ class Explorer():
     def goInPath(self, path):
         self.changeCurrenPath(path)
         self.actualisePathContent()
+
+    def orderPathContentByType(self):
+        folders = []
+        files = []
+        for ob in self.path_content:
+            if ob.type == "DIR":
+                folders.append(ob)
+            else:
+                files.append(ob)
+
+        self.path_content = folders + files
 
     def getPathContent(self):
         """Return the files and dir list from a path"""
@@ -181,6 +196,7 @@ class Explorer():
         with open(FILES_TYPES_PATH, 'r', encoding='utf-8') as f:
             self.files_types =  json.load(f)  # Retourne une liste de dictionnaires
 
+    # Templates ------------------------------------------
     def get_templates_list(self):
         return os.listdir(TEMPLATES_PATH)
 
@@ -306,13 +322,15 @@ class Explorer():
 
         return folder_count,file_count, size
    
+
+
     #FAV GESTION ============================================================
 
     def getListObjectDrive(self):
         if platform.system() == "Windows":
-            drives = self.getVolumeListWindows()
+            drives = self.Windows_getVolumeList()
         else:
-            drives = self.getVolumeListLinux()
+            drives = self.Linux_getVolumeList()
         drives_object_list = []
         for drive, name in drives:
             try:
@@ -322,7 +340,7 @@ class Explorer():
 
         return drives_object_list
     
-    def getVolumeListLinux(self):
+    def Linux_getVolumeList(self):
         volumes = []
         for p in psutil.disk_partitions(all=False):
             if "/media/" in p.mountpoint or "/run/media/" in p.mountpoint:
@@ -332,7 +350,7 @@ class Explorer():
             volumes.append([p, label])  # Ex: "MyUSB (/media/user/MyUSB)"
         return volumes
     
-    def getVolumeListWindows(self):
+    def Windows_getVolumeList(self):
         volumes = []
         for p in psutil.disk_partitions(all=False):
             buf = ctypes.create_unicode_buffer(1024)
@@ -366,9 +384,57 @@ class Explorer():
     def getIconPath(self, icon_name):
         return os.path.join(BASE_PATH, ICONS_PATH, icon_name + ".svg")
 
-
+    def getObjectIcon(self, object):
         
-    
+        if object.type == "FILE":
+            if object.ext == "exe":
+                if platform.system() == "Windows":
+                    return self.Windows_getExeIcon(object.path, object.name)
+            
+        
+    def Windows_getExeIcon(self,icon_in_path,icon_name):
+        icon_out_path=CACHE_PATH
+        out_width = 100
+        out_height = 100
+
+        import win32ui
+        import win32gui
+        import win32con
+        import win32api
+        from PIL import Image
+
+        ico_x = win32api.GetSystemMetrics(win32con.SM_CXICON)
+        ico_y = win32api.GetSystemMetrics(win32con.SM_CYICON)
+
+        large, small = win32gui.ExtractIconEx(icon_in_path,0)
+        if large==[]:return
+        if small==[]:return
+        win32gui.DestroyIcon(small[0])
+
+        hdc = win32ui.CreateDCFromHandle( win32gui.GetDC(0) )
+        hbmp = win32ui.CreateBitmap()
+        hbmp.CreateCompatibleBitmap( hdc, ico_x, ico_x )
+        hdc = hdc.CreateCompatibleDC()
+
+        hdc.SelectObject( hbmp )
+
+        hdc.DrawIcon( (0,0), large[0] )
+
+        bmpstr = hbmp.GetBitmapBits(True)
+        icon = Image.frombuffer(
+            'RGBA',
+            (32,32),
+            bmpstr, 'raw', 'BGRA', 0, 1
+        )
+
+        full_outpath = os.path.join(icon_out_path, "{}.png".format(icon_name))
+        icon.resize((out_width, out_height))
+        icon.save(full_outpath)
+        #return the final path to the image
+        return full_outpath
+
+
+
 
     
 
