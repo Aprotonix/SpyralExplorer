@@ -284,10 +284,12 @@ class FileExplorerApp(QMainWindow):
         self.setWindowTitle(APP_NAME)
         
         self.resize(800, 600)
-        self.explorer = Explorer()
 
+        
+        self.explorer = Explorer()
+        
         self.theme = Theme()
-        self.theme.setTheme(1)
+        self.theme.setTheme(6)
         self.theme.applyThemeToStyle()
         self.refresh_window()
        
@@ -295,14 +297,22 @@ class FileExplorerApp(QMainWindow):
         self.message_timer.setSingleShot(True)
         self.message_timer.timeout.connect(self.clearMessage)
         
+        #Parameters
         self.show_icon = True
         self.show_button_text = False
-        self.show_file_icon = False#Heavy
+        self.show_file_icon = True       #Heavy
+        self.enable_blur = True          #Heavy
+        self.enable_transparency = False
+
 
         self.multi_selecting_enabled = False
         self.range_selecting_enabled = False
 
+        
+        
+
         self.generateInterface()#GENERATION DES WIDGET
+        
         self.generateFavorits()
         self.explorer.actualisePathContent()
         self.showPathContent()
@@ -393,9 +403,6 @@ class FileExplorerApp(QMainWindow):
         self.combo_type_new.clicked.connect(self.show_menu)
         
 
-
-
-
         #Layout for tool bar
         self.toolbar_layout = QHBoxLayout(self.toolbar_fram)
         self.toolbar_layout.addWidget(self.button_copy)  
@@ -415,6 +422,7 @@ class FileExplorerApp(QMainWindow):
         ###Explorer Zone ===================================================
 
         self.frame_explorer =  QFrame()
+        self.frame_explorer.setObjectName("explorer_frame")
         self.frame_explorer_layout = QHBoxLayout()
     
         ##Favorits Zone-----------------------------------------------------
@@ -454,7 +462,7 @@ class FileExplorerApp(QMainWindow):
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.verticalScrollBar().setSingleStep(15)
+        self.scroll_area.verticalScrollBar().setSingleStep(20)#Speed of scrolling
 
         self.files_container = ClickableFrame()
         self.files_container.clicked.connect(self.whenFilesFrameClicked)
@@ -499,10 +507,17 @@ class FileExplorerApp(QMainWindow):
 
         central_widget = QFrame()
         central_widget.setObjectName("window")
+        # central_widget.setContentsMargins(0, 0, 0, 0) #
+        # self.setContentsMargins(0, 0, 0, 0)
         #self.setWindowFlags(Qt.FramelessWindowHint)
     
-        self.setWindowOpacity(0.95)
+        if self.enable_transparency :self.setWindowOpacity(0.95)
 
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        if self.enable_blur and self.explorer.os == "Windows":
+          
+            self.apply_blur()
+        
 
 
 
@@ -517,6 +532,10 @@ class FileExplorerApp(QMainWindow):
         self.main_layout.addWidget(self.message_label)
         self.main_layout.addWidget(self.frame_explorer)
         self.main_layout.addWidget(self.frame_info)  
+
+        self.main_layout.setSpacing(5)
+
+
 
     # Combo list------------
     def generateFilesTypeToComboList(self):
@@ -597,41 +616,53 @@ class FileExplorerApp(QMainWindow):
     ###KEY EVENT ==========================================================================================
 
     def keyPressEvent(self, event):
-        modifiers = event.modifiers()
         key = event.key()
+        ctrl_pressed = QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier
+        shift_pressed = QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
 
-        #print(key, Qt.Key.Key_Shift)
-      
-        if modifiers == Qt.KeyboardModifier.ControlModifier and key == Qt.Key.Key_Control:
-            self.enableMultiSelecting()
-        else:
-            self.disableMultiSelecting()
-
-        if  modifiers == Qt.KeyboardModifier.ShiftModifier and key == Qt.Key.Key_Shift:
-            self.enableRangeSelecting()
-
-        else:
-            self.disableRangeSelecting()
-          
-
+        if key == Qt.Key.Key_Control:
+            if self.range_selecting_enabled or shift_pressed:
+                self.disableMultiSelecting()
+                self.disableRangeSelecting()
+            else:
+                self.enableMultiSelecting()
+       
+        if key == Qt.Key.Key_Shift:
+            if self.range_selecting_enabled or ctrl_pressed:
+                self.disableMultiSelecting()
+                self.disableRangeSelecting()
+            else:
+                self.enableRangeSelecting()
         super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event):
-        modifiers = event.modifiers()
         key = event.key()
+
+        ctrl_pressed = QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier
+        shift_pressed = QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier
+
+
+        # CTRL logiques
         if key == Qt.Key.Key_Control:
             self.disableMultiSelecting()
-        
-        elif QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier and modifiers == Qt.KeyboardModifier.ControlModifier:#If ctrl still pressed
-            self.enableMultiSelecting()
-
+            if shift_pressed:
+                self.enableRangeSelecting()
+            else:
+            
+                self.disableRangeSelecting()
+       
         if key == Qt.Key.Key_Shift:
             self.disableRangeSelecting()
-        elif  QGuiApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier and modifiers == Qt.KeyboardModifier.ShiftModifier:
-            self.enableRangeSelecting()
-
+            if ctrl_pressed:
+                self.enableMultiSelecting()
+            else:
+            
+                self.disableMultiSelecting()
+        
 
         super().keyReleaseEvent(event)
+
+       
 
 
     ###BUTTON EVENT   =====================================================================================
@@ -847,9 +878,11 @@ class FileExplorerApp(QMainWindow):
     def deleteSelected(self):
         try:
             count = len(self.explorer.getSelectedItems())
+         
             self.explorer.deleteSelectedItems()
             
             self.raiseMessage(f"Deleted {count} items")
+            log(f"Deleted {count} items", "W")
             self.refreshPathContent()
         except Exception as e:
             self.raiseError(e)
@@ -934,7 +967,7 @@ class FileExplorerApp(QMainWindow):
         self.message_label.setText("")
 
     def keyLabelWrite(self, message):
-
+        
         self.label_key.setStyleSheet(f"color: {self.theme.current_theme['msgSuccess']};")
         self.label_key.setText(message)
 
@@ -1034,7 +1067,39 @@ class FileExplorerApp(QMainWindow):
             self.raiseError(e)
        
 
-      
+    def apply_blur(self):
+        import ctypes
+        import sys
+        class ACCENTPOLICY(ctypes.Structure):
+            _fields_ = [
+                ('AccentState', ctypes.c_int),
+                ('AccentFlags', ctypes.c_int),
+                ('GradientColor', ctypes.c_int),
+                ('AnimationId', ctypes.c_int)
+            ]
+
+        class WINCOMPATTRDATA(ctypes.Structure):
+            _fields_ = [
+                ('Attribute', ctypes.c_int),
+                ('Data', ctypes.c_void_p),
+                ('SizeOfData', ctypes.c_size_t)
+            ]
+
+        # Valeurs constantes
+        ACCENT_ENABLE_BLURBEHIND = 3#6
+        WCA_ACCENT_POLICY = 19
+
+        accent = ACCENTPOLICY()
+        accent.AccentState = ACCENT_ENABLE_BLURBEHIND
+        accent.GradientColor = 0xAAFFFFFF   # Alpha = 0x99 #CHANGE NOTHING
+
+        data = WINCOMPATTRDATA()
+        data.Attribute = WCA_ACCENT_POLICY
+        data.Data = ctypes.cast(ctypes.pointer(accent), ctypes.c_void_p)
+        data.SizeOfData = ctypes.sizeof(accent)
+
+        hwnd = int(self.winId())
+        ctypes.windll.user32.SetWindowCompositionAttribute(hwnd, ctypes.byref(data))
 
 
         

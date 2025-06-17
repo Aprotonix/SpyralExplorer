@@ -1,7 +1,7 @@
 {
     "name": "Default",
 
-    "windowBG":"#232323",
+    "windowBG":"transparent",
     "textColor":"#FFF",
     "globalBorderRadius":"13px",
     "frameBG":"#202020",
@@ -11,29 +11,29 @@
     "msgInfo":"#00D9FF",
 
     "topWidgetButtonBG": "#3c3c3c",
-    "topWidgetButtonBorder": "#555",
+    "topWidgetButtonBorder": "transparent",
     "topWidgetButtonHoverBG": "#656565",
-    "topWidgetButtonHoverBorder": "#555",
+    "topWidgetButtonHoverBorder": "transparent",
 
     "topWidgetInputBG": "#3c3c3c",
-    "topWidgetInputBorder": "#555",
+    "topWidgetInputBorder": "transparent",
     "topWidgetInputHoverBG": "#656565",
-    "topWidgetInputHoverBorder": "#555",
+    "topWidgetInputHoverBorder": "transparent",
 
     "toolWidgetButtonBG": "#3c3c3c",
-    "toolWidgetButtonBorder": "#555",
+    "toolWidgetButtonBorder": "transparent",
     "toolWidgetButtonHoverBG": "#656565",
-    "toolWidgetButtonHoverBorder": "#555",
+    "toolWidgetButtonHoverBorder": "transparent",
 
     "toolWidgetInputBG": "#3c3c3c",
-    "toolWidgetInputBorder": "#555",
+    "toolWidgetInputBorder": "transparent",
     "toolWidgetInputHoverBG": "#656565",
-    "toolWidgetInputHoverBorder": "#555",
+    "toolWidgetInputHoverBorder": "transparent",
 
     "ObjItemWidgetBG": "#3c3c3c",
-    "ObjItemWidgetBorder": "#555",
+    "ObjItemWidgetBorder": "transparent",
     "ObjItemWidgetHoverBG": "#656565",
-    "ObjItemWidgetHoverBorder": "#555",
+    "ObjItemWidgetHoverBorder": "transparent",
 
     "ObjItemWidgetSelectedBG": "#007aa8",
     "ObjItemWidgetSelectedBorder": "#3ec2ff",

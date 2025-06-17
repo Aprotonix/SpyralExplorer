@@ -327,7 +327,7 @@ class Explorer():
     #FAV GESTION ============================================================
 
     def getListObjectDrive(self):
-        if platform.system() == "Windows":
+        if self.os == "Windows":
             drives = self.Windows_getVolumeList()
         else:
             drives = self.Linux_getVolumeList()

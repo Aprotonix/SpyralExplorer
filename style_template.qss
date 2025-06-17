@@ -1,11 +1,19 @@
 #window{
  background-color: @windowBG;
+
  
 }
+
+QScrollArea {
+    background-color: @windowBG;
+    border-radius: @globalBorderRadius;
+}
+
 /* NAVIGATION WIDGET ################################ */
 
 #top_widget {
-    background-color: @windowBG;
+    background-color: @frameBG;
+    border-radius: @globalBorderRadius;
 }
 
 
@@ -51,8 +59,8 @@
 /*TOOL WIDGET ########################################## */
 
 #tool_widget {
-    background-color: @windowBG;
-    
+    background-color: @frameBG;
+    border-radius: @globalBorderRadius;
 }
 
 /* Button ------------------------------------------------ */
@@ -97,10 +105,16 @@
     color:@textColor;
 }
 
+#explorer_frame {
+    background-color: @frameBG;
+    border-radius: @globalBorderRadius;
+}
+
 /* ================================== */
 
 #file_frame {
-    background-color: @windowBG;
+    background-color: @frameBG;
+  
 }
 
 #object_item_widget {
@@ -108,7 +122,7 @@
     border: 1px solid @ObjItemWidgetBorder;
     margin: 0;
     padding: 0;
-    border-radius: 10px;
+    border-radius: @globalBorderRadius;
 
     font-family: "Calibri";
     font-size: 4px;
@@ -125,7 +139,7 @@
     border: 1px solid @ObjItemWidgetSelectedBorder;
     margin: 0;
     padding: 0;
-    border-radius: 10px;
+    border-radius: @globalBorderRadius;
     color:@textColor;
 
 
@@ -138,10 +152,18 @@
     border: 1px solid @ObjItemWidgetSelectedHoverBorder;
 }
 
+/* ------------------------- */
+
+
+
 /* FAV ITEM OBJECT =============================================== */
 #fav_frame {
-    background-color: @windowBG;
+    background-color: @frameBG;
+    
 }
+
+
+
 
 
 #item_favorite_widget {

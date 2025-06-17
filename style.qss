@@ -1,11 +1,19 @@
 #window{
- background-color: #232323;
+ background-color: transparent;
+
  
 }
+
+QScrollArea {
+    background-color: transparent;
+    border-radius: 13px;
+}
+
 /* NAVIGATION WIDGET ################################ */
 
 #top_widget {
-    background-color: #232323;
+    background-color: #202020;
+    border-radius: 13px;
 }
 
 
@@ -15,7 +23,7 @@
 
 #top_widget QPushButton {
     background-color: #3c3c3c;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     padding: 7px;
     border-radius: 13px;
     padding: 7px 14px;
@@ -27,13 +35,13 @@
 
 #top_widget QPushButton:hover {
     background-color: #656565;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     border-radius: 13px;
 }
 /* Input ------------------------------------------------ */
 #top_widget QLineEdit {
     background-color: #3c3c3c;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     padding: 7px;
     border-radius: 13px;
 
@@ -44,22 +52,22 @@
 
 #top_widget QLineEdit:hover {
     background-color: #656565;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     
 }
 
 /*TOOL WIDGET ########################################## */
 
 #tool_widget {
-    background-color: #232323;
-    
+    background-color: #202020;
+    border-radius: 13px;
 }
 
 /* Button ------------------------------------------------ */
 
 #tool_widget QPushButton{
     background-color: #3c3c3c;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     padding: 7px;
     border-radius: 13px;
     color: #FFF;
@@ -68,7 +76,7 @@
 
 #tool_widget  QPushButton:hover {
     background-color: #656565;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     padding: 7px;
     border-radius: 13px;
 }
@@ -77,7 +85,7 @@
 /* Input ------------------------------------------------ */
 #tool_widget QLineEdit {
     background-color: #3c3c3c;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     padding: 7px;
     border-radius: 13px;
 
@@ -88,7 +96,7 @@
 
 #tool_widget QLineEdit:hover {
     background-color: #656565;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     
 }
 /*FILES ZONE WIDGET ############################################## */
@@ -97,18 +105,24 @@
     color:#FFF;
 }
 
+#explorer_frame {
+    background-color: #202020;
+    border-radius: 13px;
+}
+
 /* ================================== */
 
 #file_frame {
-    background-color: #232323;
+    background-color: #202020;
+  
 }
 
 #object_item_widget {
     background-color: #3c3c3c;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     margin: 0;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 13px;
 
     font-family: "Calibri";
     font-size: 4px;
@@ -117,7 +131,7 @@
 
 #object_item_widget:hover {
     background-color: #656565;
-    border: 1px solid #555;
+    border: 1px solid transparent;
 }
 
 #object_item_widget_selected {
@@ -125,7 +139,7 @@
     border: 1px solid #3ec2ff;
     margin: 0;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 13px;
     color:#FFF;
 
 
@@ -138,15 +152,23 @@
     border: 1px solid #3ec2ff;
 }
 
+/* ------------------------- */
+
+
+
 /* FAV ITEM OBJECT =============================================== */
 #fav_frame {
-    background-color: #232323;
+    background-color: #202020;
+    
 }
+
+
+
 
 
 #item_favorite_widget {
     background-color: #3c3c3c;
-    border: 1px solid #555;
+    border: 1px solid transparent;
     margin: 0;
     padding: 0;
     color:#FFF;
@@ -159,7 +181,7 @@
 
 #item_favorite_widget:hover {
     background-color: #656565;
-    border: 1px solid #555;
+    border: 1px solid transparent;
 }
 
 #item_favorite_widget_selected {

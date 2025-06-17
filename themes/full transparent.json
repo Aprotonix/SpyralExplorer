@@ -1,0 +1,42 @@
+{
+    "name": "Default",
+
+    "windowBG":"transparent",
+    "textColor":"#FFF",
+    "globalBorderRadius":"13px",
+    "frameBG":"transparent",
+
+    "msgError":"#FF0000",
+    "msgSuccess":"#00FF37",
+    "msgInfo":"#00D9FF",
+
+    "topWidgetButtonBG": "rgba(100,100,100,0.2)",
+    "topWidgetButtonBorder": "transparent",
+    "topWidgetButtonHoverBG": "rgba(200,200,200,0.2)",
+    "topWidgetButtonHoverBorder": "transparent",
+
+    "topWidgetInputBG": "rgba(100,100,100,0.2)",
+    "topWidgetInputBorder": "transparent",
+    "topWidgetInputHoverBG": "rgba(200,200,200,0.2)",
+    "topWidgetInputHoverBorder": "transparent",
+
+    "toolWidgetButtonBG": "rgba(100,100,100,0.2)",
+    "toolWidgetButtonBorder": "transparent",
+    "toolWidgetButtonHoverBG":"rgba(200,200,200,0.2)",
+    "toolWidgetButtonHoverBorder":"transparent",
+
+    "toolWidgetInputBG": "rgba(100,100,100,0.2)",
+    "toolWidgetInputBorder": "transparent",
+    "toolWidgetInputHoverBG": "rgba(200,200,200,0.2)",
+    "toolWidgetInputHoverBorder": "transparent",
+
+    "ObjItemWidgetBG": "rgba(100,100,100,0.2)",
+    "ObjItemWidgetBorder": "transparent",
+    "ObjItemWidgetHoverBG": "rgba(200,200,200,0.2)",
+    "ObjItemWidgetHoverBorder": "transparent",
+
+    "ObjItemWidgetSelectedBG": "rgba(0,200,200,0.2)",
+    "ObjItemWidgetSelectedBorder": "transparent",
+    "ObjItemWidgetSelectedHoverBG": "rgba(0,250,250,0.2)",
+    "ObjItemWidgetSelectedHoverBorder": "transparent"
+}
