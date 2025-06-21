@@ -247,7 +247,7 @@ class FavoriteDriveItemWidget(ObjectItemWidget):
         
         self.progress = QProgressBar()
         
-        self.progress.setValue(self.object.usage.percent + 0.5)# 0.5 to not have a bar not filled
+        self.progress.setValue(self.object.usage.percent)
         self.progress.setFixedWidth(180)
         self.progress.setFixedHeight(10)
         self.progress.setTextVisible(False)
@@ -310,8 +310,8 @@ class FileExplorerApp(QMainWindow):
         
         #Parameters
         self.show_icon = True
-        self.show_button_text = True
-        self.show_file_icon = False       #Heavy
+        self.show_button_text = False
+        self.show_file_icon = True       #Heavy
         self.enable_blur = True          #Heavy
         self.enable_transparency = False
 
@@ -547,9 +547,10 @@ class FileExplorerApp(QMainWindow):
         if self.enable_transparency :self.setWindowOpacity(0.95)
 
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        if self.enable_blur:
+        if self.enable_blur and self.explorer.os == "Windows":
+          
+            #self.apply_blur()
             self.applyBlurBackroundCustom(50)
-           
         
 
 
@@ -1199,7 +1200,12 @@ class FileExplorerApp(QMainWindow):
 
 
     def applyBlurBackroundCustom(widget, blur_radius: float = 15):
-        log(f"Applying blur background, force = {blur_radius}...")
+       #widget = self
+
+        def get_wallpaper():
+            buf = ctypes.create_unicode_buffer(260)
+            ctypes.windll.user32.SystemParametersInfoW(0x73, 260, buf, 0)
+            return buf.value
 
         def blur_pixmap(pixmap: QPixmap, radius: float) -> QPixmap:
             item = QGraphicsPixmapItem(pixmap)
@@ -1214,42 +1220,28 @@ class FileExplorerApp(QMainWindow):
             result.fill(Qt.transparent)
 
             painter = QPainter(result)
-            scene.render(
-                painter,
-                QRectF(0, 0, pixmap.width(), pixmap.height()),
-                QRectF(0, 0, pixmap.width(), pixmap.height())
-            )
+            scene.render(painter, QRectF(0, 0, pixmap.width(), pixmap.height()),
+                                QRectF(0, 0, pixmap.width(), pixmap.height()))
             painter.end()
             return result
 
         # Charger le fond d’écran
-        path = widget.explorer.getWallpaper()
-        if not path:
-            raise Exception("Cannot find desktop wallpaper")
-
-        log(f"Background found in : {path}")
-        wallpaper = QPixmap(path)
-
-        # Flouter AVANT de redimensionner
-        blurred_wallpaper = blur_pixmap(wallpaper, blur_radius)
-
-        # Ensuite on scale le fond flouté
+        wallpaper = QPixmap(get_wallpaper())
         screen_geom = QGuiApplication.primaryScreen().geometry()
-        scaled_wallpaper = blurred_wallpaper.scaled(
-            screen_geom.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation
-        )
+        scaled_wallpaper = wallpaper.scaled(screen_geom.size(), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
-        # Fonction de dessin sur le widget
+        widget.setAttribute(Qt.WA_TranslucentBackground)
+
         def paintEvent(event):
             painter = QPainter(widget)
             pos = widget.mapToGlobal(widget.rect().topLeft())
             cropped = scaled_wallpaper.copy(pos.x(), pos.y(), widget.width(), widget.height())
-            painter.drawPixmap(0, 0, cropped)
+            blurred = blur_pixmap(cropped, blur_radius)
+            painter.drawPixmap(0, 0, blurred)
 
         def moveEvent(event):
             widget.update()
 
-        # Injection dynamique
         widget.paintEvent = paintEvent
         widget.moveEvent = moveEvent
         

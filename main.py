@@ -19,6 +19,7 @@ import sys
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStartDragDistance(30) # Sensibility of statring dragging
     window = FileExplorerApp()
     #apply_stylesheet(window)
     log(f"Loading finisehd in {round(monotonic()- start, 2)}s")

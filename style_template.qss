@@ -122,7 +122,7 @@ QScrollArea {
     border: 1px solid @ObjItemWidgetBorder;
     margin: 0;
     padding: 0;
-    border-radius: @globalBorderRadius;
+    border-radius: @itemBorderRadius;
 
     font-family: "Calibri";
     font-size: 4px;
@@ -139,7 +139,7 @@ QScrollArea {
     border: 1px solid @ObjItemWidgetSelectedBorder;
     margin: 0;
     padding: 0;
-    border-radius: @globalBorderRadius;
+    border-radius: @itemBorderRadius;
     color:@textColor;
 
 

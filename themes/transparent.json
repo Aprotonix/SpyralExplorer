@@ -4,6 +4,7 @@
     "windowBG":"transparent",
     "textColor":"#FFF",
     "globalBorderRadius":"13px",
+    "itemBorderRadius":"11px",
     "frameBG":"#202020",
 
     "msgError":"#FF0000",

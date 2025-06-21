@@ -1,0 +1,18 @@
+{
+    "📜":["py", "java", "c", "cpp", "cs","js","dll","json"],
+    "🎬":["avi", "mov", "mp4"],
+    "🎵":["mp3", "ogg"],
+    "🖼️":["jpg", "jpeg","png","bitmap","webp","ico","bmp"],
+    "⚙️":["exe", "cfg", "AppImage", "msi","bat","properties","yml","sys","bin"],
+    "📝":["odp", "docx"],
+    "🗒️":["txt"],
+    "📦":["rar", "zip","apk","xapk"],
+    "🌐":["html"],
+    "🪶":["css", "qss"],
+    "💿":["iso"],
+    "🍵":["jar"],
+    "🔑":["key"],
+    "📊":["xlsx", "xlsm", "xlsb", "xls"],
+    "🗿":["aura"],
+    "ℹ️":["md"]
+}

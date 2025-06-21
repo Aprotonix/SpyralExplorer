@@ -6,10 +6,8 @@ import shutil            # For folder action
 from pathlib import Path # To test subdirectory
 import psutil            # Get list of drive
 import platform          # Get OS Name
-import ctypes            # Get drive name for windows, and wallpaper
+import ctypes            # Get drive name for windows
 import pyperclip
-import subprocess        #Get linux desktop wallpaper
-import sys               #Open file with linux
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_PATH = os.path.join(BASE_PATH,"templates")
@@ -19,11 +17,7 @@ ICONS_PATH = os.path.join(BASE_PATH,"icons")
 CACHE_PATH = os.path.join(BASE_PATH,"cache")
 TEXT_ICONS_PATH = os.path.join(BASE_PATH,"text_icons.json")
 
-# output = subprocess.check_output(
-#                         ["gsettings", "get", "org.gnome.desktop.background", "picture-uri"],
-#                         universal_newlines=True
-#                     ).strip()
-# print(output)
+
 class Object:
     def __init__(self,path,type):
 
@@ -49,7 +43,7 @@ class DiskObject(Object):
 
 class Explorer():
     def __init__(self):
-        self.current_path = "/"#Path where whe are
+        self.current_path = "C:\\"#Path where whe are
         self.path_content = []  #Object in the path
         self.files_types = []
         self.paths_copied = []
@@ -89,11 +83,7 @@ class Explorer():
 
 
     def open(self, path):
-        if self.os == "Windows":
-            os.startfile(path)
-        else:
-            opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, path])
+        os.startfile(path)
 
     def goInPath(self, path):
         self.changeCurrenPath(path)
@@ -423,7 +413,7 @@ class Explorer():
                 if platform.system() == "Windows":
                     return self.Windows_getExeIcon(object.path, object.name)
             
-    #Unused
+    
     def Windows_getExeIcon(self,icon_in_path,icon_name):
         icon_out_path=CACHE_PATH
         out_width = 100
@@ -464,99 +454,6 @@ class Explorer():
         icon.save(full_outpath)
         #return the final path to the image
         return full_outpath
-    
-    def getWallpaper(self):
-        log("Wallopaper")
-        if self.os == "Windows":
-            buf = ctypes.create_unicode_buffer(260)
-            ctypes.windll.user32.SystemParametersInfoW(0x73, 260, buf, 0)
-            return buf.value
-        
-        elif self.os == "Linux":
-            
-
-            def resolve_dynamic_wallpaper(xml_path):
-                from xml.etree import ElementTree
-                try:
-                    tree = ElementTree.parse(xml_path)
-                    root = tree.getroot()
-                    static_path = None
-                    for static in root.findall("static"):
-                        file_elem = static.find("file")
-                        if file_elem is not None:
-                            static_path = file_elem.text
-                            break
-                    return static_path
-                except Exception as e:
-                    print("Erreur XML:", e)
-                    return None
-            def gnome():
-                log("If you get an error with GLIBCXX_3.4.29 don't lauche your the program with a snap app (vscode...), use terminal")
-                try:
-                    # Vérifie si le mode sombre est actif
-                    theme_output = subprocess.check_output(
-                        ["gsettings", "get", "org.gnome.desktop.interface", "color-scheme"],
-                        universal_newlines=True
-                    ).strip()
-
-                    dark_mode = "dark" in theme_output.lower()
-
-                    # Récupère l'URI du fond d'écran selon le mode
-                    schema = "org.gnome.desktop.background"
-                    key = "picture-uri-dark" if dark_mode else "picture-uri"
-
-                    uri_output = subprocess.check_output(
-                        ["gsettings", "get", schema, key],
-                        universal_newlines=True
-                    ).strip().strip("'")
-
-                    if uri_output.startswith("file://"):
-                        path = uri_output[7:]  # remove file://
-                    else:
-                        path = uri_output
-
-                    # Vérifie que le fichier existe
-                    if os.path.exists(path):
-                        return path
-                    else:
-                        print("Le fichier spécifié n'existe pas :", path)
-                        return None
-
-                except Exception as e:
-                    print("Erreur lors de la récupération du fond d'écran GNOME :", e)
-                    return None
-                
-
-            def kde():
-                try:
-                    config_path = Path.home() / ".config" / "plasmarc"
-                    if not config_path.exists():
-                        return None
-                    with config_path.open() as f:
-                        for line in f:
-                            if "Image=" in line:
-                                return line.strip().split("=", 1)[-1]
-                except Exception:
-                    pass
-                return None
-
-            def xfce():
-                try:
-                    cmd = ["xfconf-query", "--channel", "xfce4-desktop", "--property", "/backdrop/screen0/monitor0/image-path"]
-                    output = subprocess.check_output(cmd).decode().strip()
-                    return output
-                except Exception:
-                    pass
-                return None
-
-            desktop_env = os.environ.get("XDG_CURRENT_DESKTOP", "").lower()
-           
-            if "gnome" in desktop_env or "unity" in desktop_env:
-                return gnome()
-            elif "kde" in desktop_env:
-                return kde()
-            elif "xfce" in desktop_env:
-                return xfce()
 
 with open(TEXT_ICONS_PATH, "r", encoding='utf-8') as f:
     text_icons = json.load(f)
@@ -570,8 +467,6 @@ def getTextIcon(object):
             if object.ext in exts:return icon         
        
         return "📄"
-    
-
 
 
 

@@ -122,7 +122,7 @@ QScrollArea {
     border: 1px solid transparent;
     margin: 0;
     padding: 0;
-    border-radius: 13px;
+    border-radius: 11px;
 
     font-family: "Calibri";
     font-size: 4px;
@@ -139,7 +139,7 @@ QScrollArea {
     border: 1px solid #3ec2ff;
     margin: 0;
     padding: 0;
-    border-radius: 13px;
+    border-radius: 11px;
     color:#FFF;
 
 
