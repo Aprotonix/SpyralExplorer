@@ -10,6 +10,8 @@ import ctypes            # Get drive name for windows, and wallpaper
 import pyperclip
 import subprocess        #Get linux desktop wallpaper
 import sys               #Open file with linux
+from PIL import Image    #Get Image Info
+from mutagen import File #Get Audio Info
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_PATH = os.path.join(BASE_PATH,"templates")
@@ -19,17 +21,18 @@ ICONS_PATH = os.path.join(BASE_PATH,"icons")
 CACHE_PATH = os.path.join(BASE_PATH,"cache")
 TEXT_ICONS_PATH = os.path.join(BASE_PATH,"text_icons.json")
 
-# output = subprocess.check_output(
-#                         ["gsettings", "get", "org.gnome.desktop.background", "picture-uri"],
-#                         universal_newlines=True
-#                     ).strip()
-# print(output)
+##TO Do
+
+#Clean linux wallpaper getting
+#transform filestypes.json in a dict
 class Object:
     def __init__(self,path,type):
 
         self.type = type
         self.path = path
         self.name = os.path.basename(path)
+        self.creation_date =  os.path.getctime(path)
+        self.modification_date = os.path.getmtime(path)
         if self.name == "":self.name = path
         self.selected = False
 
@@ -49,7 +52,7 @@ class DiskObject(Object):
 
 class Explorer():
     def __init__(self):
-        self.current_path = "/"#Path where whe are
+        self.current_path = "D:\\"#Path where whe are
         self.path_content = []  #Object in the path
         self.files_types = []
         self.paths_copied = []
@@ -181,6 +184,7 @@ class Explorer():
             self.last_created_items_path = [file_path]
         else:raise Exception("File Already Exist")
 
+
     def addUsingToFileType(self, index_type): # Count the most used extension
 
         if type(index_type) == int :
@@ -203,7 +207,47 @@ class Explorer():
 
     def getFileTypeWithIndex(self, index_type):
         return  self.files_types[index_type]["type"]
-          
+    
+    def getExtDescription(self, ext):
+        for e in self.files_types:
+            if e["type"] == ext:
+                return e["description"]
+        return "File"
+   
+    def getExtClass(self,ext):
+        for e in self.files_types:
+            if e["type"] == ext:
+                return e.get("class", None)
+       
+    def getImageInfo(self, path):
+        image = Image.open(path)
+        width, height = image.size
+        return width, height
+    
+    def getAudioInfo(self, path):
+  
+       
+        
+
+
+        try:
+            audio = File(path, easy=True)
+            if audio is None:
+                return None, None, None, None
+
+            author = audio.get("artist", ["Inconnu"])[0]
+            title = audio.get("title", ["Inconnu"])[0]
+            album = audio.get("album", ["Inconnu"])[0]
+            duration_seconds = audio.info.length
+
+            return duration_seconds, author, title, album
+
+        except Exception as e:
+           
+            return None, None, None, None
+
+        return duration_seconds
+    
     def load_file_types_json(self):
         with open(FILES_TYPES_PATH, 'r', encoding='utf-8') as f:
             self.files_types =  json.load(f)  # Retourne une liste de dictionnaires

@@ -4,10 +4,14 @@ from log import *
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLineEdit, QPushButton,QLabel,QScrollArea,QHBoxLayout,QFrame,QMenu,QProgressBar,QFileIconProvider,QGraphicsScene, QGraphicsPixmapItem, QGraphicsBlurEffect
 from PySide6.QtCore import Signal, QTimer,Qt,QFileInfo, QUrl,QMimeData, QRectF
 from PySide6.QtGui import QGuiApplication,QActionGroup, QAction, QIcon, QDrag, QPixmap ,QPainter
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 from explorer import *
 from theme import *
-import traceback
+import time #Get date for files
+import traceback #Debug Only
 import sound
+import subprocess # Open terminal
+import pyperclip
 
 # =========== INFO ==========
 #    App Made by Aprotonix
@@ -294,7 +298,7 @@ class FileExplorerApp(QMainWindow):
         super().__init__()
         self.setWindowTitle(APP_NAME)
         
-        self.resize(900, 600)
+        self.resize(1000, 600)
 
         
         self.explorer = Explorer()
@@ -307,11 +311,15 @@ class FileExplorerApp(QMainWindow):
         self.message_timer = QTimer()
         self.message_timer.setSingleShot(True)
         self.message_timer.timeout.connect(self.clearMessage)
+
+        self.media_player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+        self.media_player.setAudioOutput(self.audio_output)
         
         #Parameters
         self.show_icon = True
         self.show_button_text = True
-        self.show_file_icon = False       #Heavy
+        self.show_file_icon = True       #Heavy
         self.enable_blur = True          #Heavy
         self.enable_transparency = False
 
@@ -495,14 +503,51 @@ class FileExplorerApp(QMainWindow):
         self.frame_detail = QFrame()
         self.frame_detail_layout = QVBoxLayout()
         self.frame_detail_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.frame_detail.setFixedWidth(200)
+        self.frame_detail.setFixedWidth(280)
 
         self.entry_detail_object_name = QLineEdit()
+        self.entry_detail_object_name.setStyleSheet("font-size: 18px;font-weight: bold")
+        self.entry_detail_object_name.returnPressed.connect(self.whenButtonRenamePressed)
         self.frame_detail_layout.addWidget(self.entry_detail_object_name)
 
-        self.button_rename = QPushButton("Rename")
+        self.button_rename = QPushButton()
         self.button_rename.clicked.connect(self.whenButtonRenamePressed)
         self.frame_detail_layout.addWidget(self.button_rename)
+        if self.show_icon:self.button_rename.setIcon(self.getIcon("edit"))
+        if self.show_button_text:self.button_rename.setText("Rename")
+
+        self.button_copy_path = QPushButton()
+        self.button_copy_path.clicked.connect(self.whenButtonCopyPathPressed)
+        self.frame_detail_layout.addWidget(self.button_copy_path)
+        if self.show_icon:self.button_copy_path.setIcon(self.getIcon("copy"))
+        if self.show_button_text:self.button_copy_path.setText("Copy path")
+
+        self.button_open_terminal = QPushButton()
+        self.button_open_terminal.clicked.connect(self.whenOpenTerminalButtonCliked)
+        self.frame_detail_layout.addWidget(self.button_open_terminal)
+        if self.show_icon:self.button_open_terminal.setIcon(self.getIcon("terminal"))
+        if self.show_button_text:self.button_open_terminal.setText("Open in a terminal")
+
+        self.frame_media = QFrame()
+        self.frame_media_layout = QHBoxLayout()
+
+        self.button_play_media = QPushButton()
+        self.button_play_media.clicked.connect(self.playMedia)
+        self.frame_media_layout.addWidget(self.button_play_media)
+        if self.show_icon:self.button_play_media.setIcon(self.getIcon("play"))
+        if self.show_button_text:self.button_play_media.setText("Play")
+
+        self.button_stop_media = QPushButton()
+        self.button_stop_media.clicked.connect(self.media_player.stop)
+        self.frame_media_layout.addWidget(self.button_stop_media)
+        if self.show_icon:self.button_stop_media.setIcon(self.getIcon("stop"))
+        if self.show_button_text:self.button_stop_media.setText("Stop")
+
+        self.frame_media.setLayout(self.frame_media_layout)
+        self.frame_detail_layout.addWidget(self.frame_media)
+
+        self.label_detail = QLabel()
+        self.frame_detail_layout.addWidget(self.label_detail)
 
 
         self.frame_detail.setLayout(self.frame_detail_layout)
@@ -549,6 +594,7 @@ class FileExplorerApp(QMainWindow):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         if self.enable_blur:
             self.applyBlurBackroundCustom(50)
+            #self.applyBlurBackrounWindows()
            
         
 
@@ -619,9 +665,10 @@ class FileExplorerApp(QMainWindow):
         #Sort by most used
         sorted_types = sorted(
             self.explorer.files_types,
-            key=lambda x: x["using"],
+            key=lambda x: x.get("using", 0),
             reverse=True
         )
+
     
         # Add to combo list
         for index, ftype in enumerate(sorted_types):
@@ -748,6 +795,28 @@ class FileExplorerApp(QMainWindow):
             
         except Exception as e:
             self.raiseError(e)
+    
+    def whenOpenTerminalButtonCliked(self):
+        items_selected = self.explorer.getSelectedItems()
+        if len(items_selected) == 0:
+            self.openTerminal(self.explorer.current_path)
+
+        elif len(items_selected) == 1 and items_selected[0].type == "DIR":
+            self.openTerminal(items_selected[0].path)
+
+    def whenButtonCopyPathPressed(self):
+        items_selected = self.explorer.getSelectedItems()
+
+        if len(items_selected) == 0:
+            pyperclip.copy(self.explorer.current_path)
+            self.raiseMessage(f"Path copied ! : {self.explorer.current_path}")
+
+
+        elif len(items_selected) == 1:
+            pyperclip.copy(items_selected[0].path)
+
+            self.raiseMessage(f"Path copied ! : {items_selected[0].path}")
+
     #Files ItemObject
     def whenObjectItemWidgetClicked(self, widget):
         start_dragging = False
@@ -968,7 +1037,7 @@ class FileExplorerApp(QMainWindow):
    
     def enableMultiSelecting(self):
         self.multi_selecting_enabled = True
-        self.keyLabelWrite("Multi Selecting")
+        self.keyLabelWrite("● Multi Selecting")
 
     def disableMultiSelecting(self):
         self.multi_selecting_enabled = False
@@ -976,15 +1045,31 @@ class FileExplorerApp(QMainWindow):
 
     def enableRangeSelecting(self):
         self.range_selecting_enabled = True
-        self.keyLabelWrite("Range Selecting")
+        self.keyLabelWrite("● Range Selecting")
 
     def disableRangeSelecting(self):
         self.range_selecting_enabled = False
         self.keyLabelWrite("")
     
+    def openTerminal(self, location):
+       
+
+        try:
+            if self.explorer.os == "Windows":
+                subprocess.Popen(f'start cmd', cwd=location, shell=True)
+            else:#Linux Gnom
+                subprocess.Popen(["gnome-terminal"], cwd=location)
+        except Exception as e:
+            self.raiseError(f"Can't open a termianl : {e}")
+
+
     #Heavy -> Less utilisation
     def getSelectedObject(self):
         return [o for o in self.list_wiget_object_item if o.object.selected]
+
+    def playMedia(self):
+        self.media_player.stop()
+        self.media_player.play()
 
     #INTERFACE FUNCTION =====================================================================================
 
@@ -1010,6 +1095,7 @@ class FileExplorerApp(QMainWindow):
         drag.exec(Qt.DropAction.CopyAction)
         #---------------------
 
+
     def refresh_window(self):
         apply_stylesheet(self)
 
@@ -1034,12 +1120,54 @@ class FileExplorerApp(QMainWindow):
         self.label_info.setText(string)
 
     def refreshDetail(self):
+        max_len = 20
+        def format_detail_value(id, value):
+            if len(value)>max_len:value = value[:max_len] + "..."
+            return f"""<tr ><td align="left"  style="padding-bottom: 10px;"><b>{id} :</b></td><td align="right" >{value}</td></tr>"""
 
         items_selected = self.explorer.getSelectedItems()
         if len(items_selected) == 1:
+            object = items_selected[0]
             self.frame_detail.show()
-            self.entry_detail_object_name.setText(items_selected[0].name)
+            self.entry_detail_object_name.setText(object.name)
+            str_detail = """<table width="100%" style="font-size:13px; border-spacing: 0; border-collapse: separate;  ">"""
+            
+            if object.type != "DIR":
+                self.button_open_terminal.hide()
+                str_detail += format_detail_value("Size", formatSize(object.size))
+                str_detail += format_detail_value("Type",f"{object.ext.upper()} - {self.explorer.getExtDescription(object.ext)}")
+
+                file_class = self.explorer.getExtClass(object.ext)
+                if file_class == "image":
+                    width, height = self.explorer.getImageInfo(object.path)
+                    str_detail += format_detail_value("Dimension", f"{width}x{height}, {round(( width* height)/1000000, 2)} MP")
+                if file_class == "audio":
+                    self.frame_media.show()
+                    self.media_player.setSource(QUrl.fromLocalFile(object.path))
+                   
+                    duration_seconds, author, title, album = self.explorer.getAudioInfo(object.path)
+                    str_detail += format_detail_value("Duration", f"{time.strftime('%M:%S', time.gmtime(duration_seconds))}")
+                    str_detail += format_detail_value("Author", f"{author}")
+                    str_detail += format_detail_value("Title", f"{title}")
+                    str_detail += format_detail_value("Album", f"{album}")
+                else:
+                    self.frame_media.hide()
+                
+
+
+
+            else:
+                self.frame_media.hide()
+                self.button_open_terminal.show()
+                str_detail += format_detail_value("Type","FOLDER")
+
+            str_detail += format_detail_value("Created on",time.ctime(object.creation_date))
+            str_detail += format_detail_value("Modified on",time.ctime(object.modification_date))
+            str_detail += format_detail_value("Path ",object.path)
+           
+            self.label_detail.setText(str_detail + "</table>")
         elif len(items_selected) == 0:
+            self.frame_media.hide()
             self.frame_detail.show()
             name = self.explorer.getNameOfPathContentDirectory()
             if name != "":

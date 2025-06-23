@@ -1,43 +1,57 @@
 [
     {
         "type": "txt",
-        "description": "Simple text file",
-        "using": 1
+        "description": "Simple text file"
+        
     },
     {
         "type": "py",
-        "description": "Python Script",
-        "using": 17
+        "description": "Python Script"
+        
 
     },
     {
         "type": "java",
-        "description": "Java Script",
-        "using": 0
+        "description": "Java Script"
+       
     },
     {
         "type": "odp",
-        "description": "Libre Office Texte",
-        "using": 0
+        "description": "Libre Office Texte"
+        
     },
     {
-        "type": "o",
-        "description": "",
-        "using": 6
+        "type": "lnk",
+        "description": "Item Link"
+       
     },
     {
-        "type": "",
-        "description": "",
-        "using": 2
+        "type": "webp",
+        "description": "Web Image",
+        "class":"image"
+        
     },
     {
-        "type": "s",
-        "description": "",
-        "using": 1
+        "type": "png",
+        "description": "Image PNG",
+        "class":"image"
+        
     },
     {
-        "type": ",,,",
-        "description": "",
-        "using": 1
+        "type": "jpg",
+        "description": "Image JPG",
+        "class":"image"
+        
+    },
+    {
+        "type": "mp3",
+        "description": "Audio MP3",
+        "class":"audio"
+        
     }
+    
+
+    
+    
+    
 ]
